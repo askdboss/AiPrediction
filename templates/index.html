@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Console Admin - IA Profit</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 40px; display: flex; justify-content: center; }
+        .dashboard { width: 100%; max-width: 500px; background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        
+        h2 { text-align: center; color: #1a202c; margin-bottom: 25px; }
+        
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #4a5568; }
+        
+        select, input[type="number"] { 
+            width: 100%; padding: 12px; margin-bottom: 20px; 
+            border-radius: 10px; border: 1.5px solid #e2e8f0; font-size: 16px;
+        }
+
+        /* Alignement de la promotion à droite */
+        .promo-group { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 30px; /* Saut d'espacement avant le bouton */
+            background: #f8fafc; padding: 10px 15px; border-radius: 10px;
+        }
+        .promo-group label { margin-bottom: 0; cursor: pointer; }
+        input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+
+        .btn { 
+            width: 100%; padding: 15px; background: #10b981; color: white; 
+            border: none; border-radius: 12px; cursor: pointer; font-size: 17px; font-weight: bold; transition: 0.3s;
+        }
+        .btn:hover { background: #059669; transform: translateY(-2px); }
+
+        .resultat { margin-top: 25px; padding: 20px; border-radius: 15px; text-align: center; animation: fadeIn 0.5s; }
+        .profit-positif { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .profit-negatif { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .value { font-size: 28px; font-weight: 800; display: block; margin-top: 5px; }
+        
+        hr { border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 15px 0; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h2>🛡️ Console Administrateur</h2>
+        
+        <form method="POST">
+            <label>Produit à simuler :</label>
+            <select name="item_code" required>
+    {% for p in produits %}
+        <option value="{{ p['Item Code'] }}" 
+            {% if p['Item Code']|string == item_selectionne|string %} selected {% endif %}>
+            {{ p['Item Name'] }}
+        </option>
+    {% endfor %}
+</select>
+
+            <label>Prix de vente (€/kg) :</label>
+            <input type="number" name="prix" step="0.01" value="{{ prix if prix is not none else '0.00' }}" required>
+
+            <div class="promo-group">
+                <label for="promo_check">Appliquer une promotion</label>
+                <input type="checkbox" name="promo" id="promo_check" {% if promo_cochee %}checked{% endif %}>
+            </div>
+            
+            <button type="submit" class="btn">Simuler la Rentabilité</button>
+        </form>
+
+        {% if prediction is not none and prediction > 0 %}
+<div class="resultat {% if profit >= 0 %}profit-positif{% else %}profit-negatif{% endif %}">
+    <p>Ventes prévues : <span class="value">{{ prediction }} kg</span></p>
+    <hr>
+    <p>Profit Estimé : <span class="value">{{ profit }} €</span></p>
+    <small style="font-weight: bold;">{{ alerte }}</small>
+</div>
+{% endif %}
+    </div>
+</body>
+</html>
